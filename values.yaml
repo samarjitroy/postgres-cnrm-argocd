@@ -1,0 +1,40 @@
+storageclass:
+  metadata:
+    name: postgres-regionalpd
+  replicationtype: regional-pd
+  allowedTopologies:
+    matchLabelExpressions:
+      value1: us-central1-b
+      value2: us-central1-c
+
+PersistentVolumeClaim:
+  metadata:
+    name: postgresql-pv
+  storage:
+    size: 200Gi
+
+deployment:
+  metadata:
+    name: postgres-cnrm-01
+    repName: postgres-cnrm-02
+    namespace: learnwebcoding-372523
+  spec:
+    image:
+      name: POSTGRES_14
+    region: us-central1
+    repRegion: us-east4
+    settings:
+      diskSize: 50
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: "4Gi"
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+  containerPort: 5432
+
+Service:
+  spec:
+    type: LoadBalancer

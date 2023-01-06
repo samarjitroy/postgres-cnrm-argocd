@@ -1,0 +1,39 @@
+apiVersion: sql.cnrm.cloud.google.com/v1beta1
+kind: SQLInstance
+metadata:
+  name: {{ .Values.deployment.metadata.repName }}
+  namespace: {{ .Values.deployment.metadata.namespace }}
+  annotations:
+    cnrm.cloud.google.com/deletion-policy: abondon
+    iam.gke.io/gcp-service-account: argocd-fleet-admin@learnwebcoding-372523.iam.gserviceaccount.com
+spec:
+  region: {{ .Values.deployment.spec.repRegion }}
+  databaseVersion: {{ .Values.deployment.spec.image.name }}
+  masterInstanceRef: 
+    name: {{ .Values.deployment.metadata.name }}
+  replicaConfiguration:
+    connectRetryInterval: 30
+    failoverTarget: false
+    masterHeartbeatPeriod: 300
+  settings:
+    tier: db-custom-2-7680
+    diskSize: {{ .Values.deployment.spec.settings.diskSize }}
+    availabilityType: ZONAL
+    backupConfiguration:
+      enabled: true
+      pointInTimeRecoveryEnabled: true
+      backupRetentionSettings:
+        retainedBackups: 6
+      location: us
+    ipConfiguration:
+      ipv4Enabled: false
+      requireSsl: true
+      privateNetworkRef:
+        external: default
+    databaseFlags:
+    - name: cloudsql.enable_pgaudit
+      value: 'on'
+    - name: pgaudit.log
+      value: all
+    - name: cloudsql.iam_authentication
+      value: 'on'
